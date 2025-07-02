@@ -1,42 +1,26 @@
 package com.example.demo;
 
-import org.springframework.http.ResponseEntity;
+import com.example.demo.User;
+import com.example.demo.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
-    private final List<User> users = new ArrayList<>();
+    @Autowired
+    private UserRepository userRepository;
 
-    @CrossOrigin(origins = "http://localhost:3000")
-    @PostMapping("/register")
-    public Map<String, Object> register(@RequestBody User user) {
-        users.add(user);
-        return Map.of("message", "Пользователь зарегистрирован: " + user.getUsername(),
-                "user", user);
-    }
-
-    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping
-    public List<User> getUsers() {
-        return users;
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
-    @DeleteMapping("/{username}")
-    public ResponseEntity<?> deleteUser(@PathVariable String username) {
-        Optional<User> userToRemove = users.stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst();
-
-        if (userToRemove.isPresent()) {
-            users.remove(userToRemove.get());
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userRepository.save(user);
     }
 }
